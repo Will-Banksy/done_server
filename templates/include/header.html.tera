@@ -1,0 +1,14 @@
+{% if header_expanded %}
+<header class="expanded">
+	{% include "include/nav" %}
+
+	<h1>done.</h1>
+	<p class="subtitle">The online todo application</p>
+</header>
+{% else %}
+<header class="compact">
+	<span>done.</span>
+	{% set inline_nav = true %}
+	{% include "include/nav" %}
+</header>
+{% endif %}

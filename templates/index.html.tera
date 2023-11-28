@@ -1,0 +1,24 @@
+{% import "include/macros" as macros %}
+
+<!DOCTYPE html>
+<html lang="en-GB">
+	<head>
+		{% include "include/meta" %}
+		<title>done.</title>
+	</head>
+
+	<body>
+		{% set header_expanded = true %}
+		{% include "include/header" %}
+
+		<main>
+			<section>
+				<h2>About</h2>
+				<p>
+					<b>done.</b> is an online web application to help you manage your tasks. It can be self-hosted, but requires an existing database
+					(one will not be set up automatically).
+				</p>
+			</section>
+		</main>
+	</body>
+</html>

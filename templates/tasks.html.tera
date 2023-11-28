@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+	<head>
+		{% include "include/meta" %}
+		<title>Tasks | done.</title>
+	</head>
+
+	<body>
+		{% include "include/header" %}
+
+		<main>
+			<section>
+				<h2>Tasks</h2>
+			</section>
+		</main>
+	</body>
+</html>

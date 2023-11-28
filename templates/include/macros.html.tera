@@ -1,0 +1,8 @@
+{% macro icon_input(input, icon="text") %}
+<div class="input-hasicon-container">
+	<span class="material-symbols-outlined input-icon">
+		{{ icon }}
+	</span>
+	{{ input | safe }}
+</div>
+{% endmacro icon_input %}

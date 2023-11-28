@@ -1,0 +1,9 @@
+{% if inline_nav %}
+<nav style="display: inline-block;">
+{% else %}
+<nav>
+{% endif %}
+	<a href="/">home</a>
+	<a href="/tasks">tasks</a>
+	<a href="/login">log in</a>
+</nav>

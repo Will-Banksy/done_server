@@ -1,0 +1,213 @@
+@import url('https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&display=swap');
+
+/* RESET */
+
+* {
+	margin: 0px;
+	padding: 0px;
+	font-size: inherit;
+	box-sizing: border-box;
+}
+
+
+/* VARIABLES */
+
+:root {
+	--theme-col-bg0: #000000;
+	--theme-col-bg1: #0f0f0f;
+	--theme-col-bg2: #202020;
+
+	--theme-col-fg0: #ffffff;
+	--theme-col-fg1: #c0c0c0;
+	--theme-col-fg2: #7a7a7a;
+
+	--theme-met-h1: 6rem;
+	--theme-met-h2: 3rem;
+	--theme-met-h3: 2.5rem;
+	--theme-met-h3: 2rem;
+
+	--theme-met-norm: 400;
+	--theme-met-sbold: 600;
+	--theme-met-bold: 700;
+
+	--theme-met-rounding: 2px;
+}
+
+
+/* GLOBAL ELEMENT STYLES */
+
+:root {
+	background-color: var(--theme-col-bg1);
+	color: var(--theme-col-fg0);
+
+	font-family: 'Source Sans 3', sans-serif;
+	font-weight: var(--theme-met-norm);
+	font-size: 1rem;
+}
+
+h1, h2, h3, h4, h5, h6 {
+	font-weight: var(--theme-met-sbold);
+}
+
+h1 {
+	font-size: var(--theme-met-h1);
+}
+
+h2 {
+	font-size: var(--theme-met-h2);
+	border-bottom: 1px solid var(--theme-col-fg2);
+	margin-bottom: 1rem;
+}
+
+h3 {
+	font-size: var(--theme-met-h3);
+	border-bottom: 1px solid var(--theme-col-fg2);
+	margin-bottom: 1rem;
+}
+
+b {
+	font-weight: var(--theme-met-bold);
+}
+
+a {
+	text-decoration: none;
+	font-weight: 600;
+	color: var(--theme-col-fg0);
+	border-bottom: 1px dashed rgba(0, 0, 0, 0);
+}
+
+a:hover {
+	border-bottom: 1px dashed var(--theme-col-fg0);
+}
+
+form {
+	display: flex;
+	flex-direction: column;
+}
+
+input[type=text], input[type=password] {
+	background-color: var(--theme-col-bg2);
+	border: none;
+	border-bottom: 1px solid var(--theme-col-fg2);
+	border-radius: var(--theme-met-rounding);
+	outline: none;
+	color: var(--theme-col-fg0);
+	padding: 0.4rem 0.8rem;
+	margin: 0.8rem 0px;
+}
+
+input[type=submit] {
+	background-color: var(--theme-col-fg0);
+	border: none;
+	border-radius: var(--theme-met-rounding);
+	outline: none;
+	color: var(--theme-col-bg0);
+	padding: 0.4rem 0.8rem;
+	margin: 0.8rem 0px;
+	cursor: pointer;
+}
+
+input[type=text]:focus, input[type=password]:focus {
+	border-bottom-color: var(--theme-col-fg0);
+}
+
+input[type=submit]:focus {
+	background-color: var(--theme-col-fg1);
+}
+
+
+/* GLOBAL CLASS STYLES */
+
+.input-hasicon-container {
+	position: relative;
+}
+
+.input-icon {
+	position: absolute;
+	width: 2rem;
+	top: 50%;
+	transform: translate(0, -50%);
+	text-align: center;
+}
+
+input.input-hasicon {
+	padding-left: 2rem;
+	width: 100%;
+}
+
+.material-symbols-outlined {
+	user-select: none;
+	color: var(--theme-col-fg1);
+}
+
+
+/* SPECIFIC STYLES */
+
+header.expanded {
+	padding: 1rem 2rem 5rem 2rem;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	background-color: var(--theme-col-bg0);
+}
+
+header.compact {
+	padding-right: 2rem;
+	display: flex;
+	flex-direction: row;
+	justify-content: end;
+	align-items: center;
+	background-color: var(--theme-col-bg0);
+}
+
+header.compact > span {
+	padding: 1rem 2rem;
+	flex-grow: 1;
+	font-weight: var(--theme-met-sbold);
+	font-size: var(--theme-met-h2);
+}
+
+header > nav {
+	display: flex;
+	flex-direction: row;
+	justify-content: end;
+}
+
+header.expanded > nav {
+	align-self: flex-end;
+}
+
+header > nav > * {
+	margin: 0px 1rem;
+}
+
+header > h1 {
+	margin-top: 4rem;
+}
+
+header > p.subtitle {
+	color: var(--theme-col-fg1);
+}
+
+main {
+	display: flex;
+	flex-direction: column;
+	align-items: stretch;
+	padding: 2rem;
+	background-color: var(--theme-col-bg1);
+}
+
+main > section {
+	max-width: 40rem;
+	width: 100%;
+	margin: 0px auto;
+	padding: 1rem 1rem;
+}
+
+main > section > form {
+	margin-bottom: 1rem;
+}
+
+main > section .signup-prompt {
+	text-align: center;
+}
