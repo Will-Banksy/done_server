@@ -6,6 +6,7 @@
 	margin: 0px;
 	padding: 0px;
 	font-size: inherit;
+	font-family: inherit;
 	box-sizing: border-box;
 }
 
@@ -80,6 +81,11 @@ a:hover {
 	border-bottom: 1px dashed var(--theme-col-fg0);
 }
 
+a:focus {
+	outline: none;
+	border-bottom: 1px solid var(--theme-col-fg0);
+}
+
 form {
 	display: flex;
 	flex-direction: column;
@@ -96,7 +102,7 @@ input[type=text], input[type=password] {
 	margin: 0.8rem 0px;
 }
 
-input[type=submit] {
+input[type=submit], button {
 	background-color: var(--theme-col-fg0);
 	border: none;
 	border-radius: var(--theme-met-rounding);
@@ -111,7 +117,7 @@ input[type=text]:focus, input[type=password]:focus {
 	border-bottom-color: var(--theme-col-fg0);
 }
 
-input[type=submit]:focus {
+input[type=submit]:focus, button:focus {
 	background-color: var(--theme-col-fg1);
 }
 
@@ -138,6 +144,28 @@ input.input-hasicon {
 .material-symbols-outlined {
 	user-select: none;
 	color: var(--theme-col-fg1);
+	transform: rotate(0deg);
+}
+
+.material-symbols-outlined.spin {
+	animation: rotate 1s linear 0s infinite;
+}
+
+@keyframes rotate {
+	0% {
+		transform: rotate(0deg);
+	}
+	100% {
+		transform: rotate(360deg);
+	}
+}
+
+input[type=submit].material-symbols-outlined, button.material-symbols-outlined, button .material-symbols-outlined {
+	color: var(--theme-col-bg0);
+}
+
+.inline {
+	display: inline;
 }
 
 
@@ -210,4 +238,29 @@ main > section > form {
 
 main > section .signup-prompt {
 	text-align: center;
+}
+
+form.task-form {
+	flex-direction: row;
+	margin-bottom: 0px;
+}
+
+form.task-form input[type=text] {
+	flex-grow: 1;
+}
+
+form.task-form button {
+	margin-left: 1rem;
+}
+
+form.task-form input[type=text]:not(.task-updated) + button {
+	visibility: hidden;
+	width: 0px;
+	margin: 0px;
+	padding: 0px;
+}
+
+form.task-form button span.material-symbols-outlined {
+	line-height: 100%;
+	display: block;
 }
