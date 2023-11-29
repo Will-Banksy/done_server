@@ -168,6 +168,41 @@ input[type=submit].material-symbols-outlined, button.material-symbols-outlined, 
 	display: inline;
 }
 
+.checkbox-container {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	position: relative;
+	padding-right: 1.5rem;
+	margin-right: 1.5rem;
+	height: 1.5rem;
+}
+
+.checkbox-container input[type=checkbox] {
+	position: absolute;
+	opacity: 0;
+	cursor: pointer;
+	height: 0px;
+	width: 0px;
+}
+
+.checkbox-container .checkbox {
+	background-color: var(--theme-col-bg2);
+	position: absolute;
+	width: 1.5rem;
+	height: 1.5rem;
+	color: transparent;
+}
+
+.checkbox-container input[type=checkbox]:checked + .checkbox {
+	background-color: var(--theme-col-fg0);
+	color: var(--theme-col-bg0);
+}
+
+.crossed-out {
+	text-decoration: line-through;
+}
+
 
 /* SPECIFIC STYLES */
 
@@ -240,9 +275,17 @@ main > section .signup-prompt {
 	text-align: center;
 }
 
+div.task-form-container {
+	display: flex;
+	flex-direction: row;
+	justify-content: stretch;
+	align-items: center;
+}
+
 form.task-form {
 	flex-direction: row;
 	margin-bottom: 0px;
+	flex-grow: 1;
 }
 
 form.task-form input[type=text] {

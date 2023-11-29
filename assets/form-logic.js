@@ -59,6 +59,7 @@ function add_task() {
 	let task_elem = document.querySelector("#task_template").content.cloneNode(true);
 	let task_form = task_elem.querySelector("form");
 	let task_hidden_input = task_elem.querySelector("input[type=hidden]");
+	let task_text = task_elem.querySelector("input[type=text]");
 
 	let task_id = `task-${id}`
 	task_form.setAttribute("id", task_id);
@@ -70,4 +71,29 @@ function add_task() {
 		set_task(task_form);
 		e.preventDefault();
 	})
+	task_text.focus();
+}
+
+async function done_task_on_change(input) {
+	let timer;
+	clearTimeout(timer);
+
+	if(input.checked) {
+		input.parentNode.parentNode.querySelector("form.task-form input[type=text]").classList.add("crossed-out");
+
+		timer = setTimeout(() => {
+			if(input.checked) {
+				let form = input.parentNode.parentNode.querySelector("form.task-form");
+				let form_data = new FormData(form);
+
+				fetch("/remove_task", { method: "POST", body: form_data, redirect: "manual" })
+					.then(() => {
+						input.checked = false;
+						input.parentNode.parentNode.remove();
+					});
+			}
+		}, 3000)
+	} else {
+		input.parentNode.parentNode.querySelector("form.task-form input[type=text]").classList.remove("crossed-out");
+	}
 }

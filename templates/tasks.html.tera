@@ -14,16 +14,22 @@
 				<h2>Tasks</h2>
 
 				{% macro task_html(id, task) %}
-				<form action="/set_task" method="post" class="task-form" id="{{ id }}">
-					<input type="hidden" name="id" value="{{ id }}">
-					<input type="text" name="task" class="inline" value="{{ task }}" placeholder="E.g. do laundry, go shopping, etc..." onchange="task_on_change(this);"
-						onkeypress="this.onchange(this);" onpaste="this.onchange(this)" oninput="this.onchange(this)">
-					<button type="submit">
-						<span class="material-symbols-outlined inline">
-							done
-						</span>
-					</button>
-				</form>
+				<div class="task-form-container">
+					<label class="checkbox-container">
+						<input type="checkbox" onchange="done_task_on_change(this)">
+						<span class="checkbox material-symbols-outlined">done</span>
+					</label>
+					<form action="/set_task" method="post" class="task-form" id="{{ id }}">
+						<input type="hidden" name="id" value="{{ id }}">
+						<input type="text" name="task" class="inline" value="{{ task }}" placeholder="E.g. do laundry, go shopping, etc..." onchange="task_on_change(this);"
+							onkeypress="this.onchange(this);" onpaste="this.onchange(this)" oninput="this.onchange(this)">
+						<button type="submit">
+							<span class="material-symbols-outlined inline">
+								done
+							</span>
+						</button>
+					</form>
+				</div>
 				{% endmacro  %}
 
 				<template id="task_template">
