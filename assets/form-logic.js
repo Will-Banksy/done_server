@@ -72,6 +72,7 @@ function add_task() {
 		e.preventDefault();
 	})
 	task_text.focus();
+	task_on_change(task_text);
 }
 
 async function done_task_on_change(input) {

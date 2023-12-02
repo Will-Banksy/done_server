@@ -124,23 +124,6 @@ input[type=submit]:focus, button:focus {
 
 /* GLOBAL CLASS STYLES */
 
-.input-hasicon-container {
-	position: relative;
-}
-
-.input-icon {
-	position: absolute;
-	width: 2rem;
-	top: 50%;
-	transform: translate(0, -50%);
-	text-align: center;
-}
-
-input.input-hasicon {
-	padding-left: 2rem;
-	width: 100%;
-}
-
 .material-symbols-outlined {
 	user-select: none;
 	color: var(--theme-col-fg1);
@@ -158,6 +141,23 @@ input.input-hasicon {
 	100% {
 		transform: rotate(360deg);
 	}
+}
+
+.input-hasicon-container {
+	position: relative;
+}
+
+.input-icon {
+	position: absolute;
+	width: 2rem;
+	top: 50%;
+	transform: translate(0, -50%);
+	text-align: center;
+}
+
+input.input-hasicon {
+	padding-left: 2rem;
+	width: 100%;
 }
 
 input[type=submit].material-symbols-outlined, button.material-symbols-outlined, button .material-symbols-outlined {
