@@ -461,6 +461,8 @@ dependencies = [
  "rocket",
  "rocket_db_pools",
  "rocket_dyn_templates",
+ "serde",
+ "toml",
 ]
 
 [[package]]

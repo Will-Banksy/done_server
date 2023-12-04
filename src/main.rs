@@ -1,8 +1,9 @@
-use std::{collections::BTreeMap, sync::RwLock, ops::Deref};
+use std::{collections::BTreeMap, sync::RwLock, ops::Deref, fs};
 
 use rocket::{launch, routes, get, fs::{FileServer, Options}, post, FromForm, form::Form, response::Redirect, uri, State};
 use rocket_db_pools::{Database, sqlx};
 use rocket_dyn_templates::{Template, context};
+use serde::Deserialize;
 
 #[derive(FromForm, Debug)]
 struct TaskForm<'a> {
@@ -53,12 +54,52 @@ fn signup() -> Template {
 	Template::render("signup", context! {})
 }
 
+#[derive(Deserialize)]
+struct Env {
+	pub url: Option<String>
+}
+
+impl Env {
+	fn read_env() -> Option<Env> {
+		let env_str = fs::read_to_string(".env").ok()?;
+		toml::from_str(&env_str).ok()
+	}
+}
+
 #[launch]
 fn rocket() -> _ {
-	rocket::build()
+	let env = Env::read_env();
+
+	let mut build = None;
+
+	if let Some(env) = env {
+		if let Some(url) = env.url {
+			let figment = rocket::Config::figment()
+				.merge(("databases.name", rocket_db_pools::Config {
+					url,
+					min_connections: None,
+					max_connections: 1024,
+					connect_timeout: 5,
+					idle_timeout: Some(180)
+				}));
+
+			build = Some(rocket::custom(figment));
+		}
+	}
+
+	let build = {
+		if let Some(build) = build {
+			build
+		} else {
+			rocket::build()
+		}
+	};
+
+	build
 		.mount("/", routes![index, tasks, set_task, remove_task, signup, login])
 		.mount("/assets/", FileServer::new("assets", Options::None))
 		.attach(Template::fairing())
 		.attach(MainDB::init())
 		.manage(Tasks { tasks: RwLock::new(BTreeMap::new()) })
+
 }
