@@ -1,60 +1,17 @@
-use std::{collections::BTreeMap, sync::RwLock, ops::Deref, fs};
+mod routes;
+mod state;
+mod forms;
+mod db;
 
-use rocket::{launch, routes, get, fs::{FileServer, Options}, post, FromForm, form::Form, response::Redirect, uri, State};
-use rocket_db_pools::{Database, sqlx};
-use rocket_dyn_templates::{Template, context};
+use std::{collections::BTreeMap, sync::RwLock, fs};
+use rocket::{launch, routes, fs::{FileServer, Options}};
+
+use rocket_dyn_templates::Template;
 use serde::Deserialize;
 
-#[derive(FromForm, Debug)]
-struct TaskForm<'a> {
-	id: &'a str,
-	task: &'a str,
-}
+use crate::{state::Tasks, routes::*, db::MainDB};
 
-struct Tasks {
-	pub tasks: RwLock<BTreeMap<String, String>>
-}
-
-#[derive(Database)]
-#[database("main_db")]
-struct MainDB(sqlx::MySqlPool);
-
-#[get("/")]
-fn index() -> Template {
-	Template::render("index", context! {})
-}
-
-#[get("/login")]
-fn login() -> Template {
-	Template::render("login", context! {})
-}
-
-#[get("/tasks")]
-fn tasks(tasks: &State<Tasks>) -> Template {
-	let tasks = tasks.inner().tasks.read().unwrap();
-	Template::render("tasks", context! { tasks: tasks.deref() })
-}
-
-#[post("/set_task", data = "<task_form>")]
-fn set_task(task_form: Form<TaskForm<'_>>, tasks: &State<Tasks>) -> Redirect {
-	eprintln!("/set_task: Recieved task data: {:?}", task_form);
-	tasks.inner().tasks.write().unwrap().insert(task_form.id.to_string(), task_form.task.to_string());
-	Redirect::to(uri!("/tasks"))
-}
-
-#[post("/remove_task", data = "<task_form>")]
-fn remove_task(task_form: Form<TaskForm<'_>>, tasks: &State<Tasks>) -> Redirect {
-	eprintln!("/remove_task: Recieved task data: {:?}", task_form);
-	tasks.inner().tasks.write().unwrap().remove(&task_form.id.to_string());
-	Redirect::to(uri!("/tasks"))
-}
-
-#[get("/signup")]
-fn signup() -> Template {
-	Template::render("signup", context! {})
-}
-
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 struct Env {
 	pub url: Option<String>
 }
@@ -68,38 +25,51 @@ impl Env {
 
 #[launch]
 fn rocket() -> _ {
+	// rocket::build()
+	// 	.mount("/", routes![index, tasks, set_task, remove_task, signup, login])
+	// 	.mount("/assets/", FileServer::new("assets", Options::None))
+	// 	.attach(Template::fairing())
+	// 	.attach(MainDB::init())
+	// 	.manage(Tasks { tasks: RwLock::new(BTreeMap::new()) })
+
 	let env = Env::read_env();
 
-	let mut build = None;
+	println!("{:?}", env);
 
-	if let Some(env) = env {
+	let mut use_db = false;
+
+	let mut rocket_build = if let Some(env) = env {
 		if let Some(url) = env.url {
 			let figment = rocket::Config::figment()
-				.merge(("databases.name", rocket_db_pools::Config {
+				.merge(("databases.main_db", rocket_db_pools::Config {
 					url,
 					min_connections: None,
-					max_connections: 1024,
+					max_connections: 128,
 					connect_timeout: 5,
 					idle_timeout: Some(180)
 				}));
 
-			build = Some(rocket::custom(figment));
-		}
-	}
+			use_db = true;
 
-	let build = {
-		if let Some(build) = build {
-			build
+			rocket::custom(figment)
 		} else {
 			rocket::build()
 		}
+	} else {
+		rocket::build()
 	};
 
-	build
+	rocket_build = rocket_build
 		.mount("/", routes![index, tasks, set_task, remove_task, signup, login])
 		.mount("/assets/", FileServer::new("assets", Options::None))
-		.attach(Template::fairing())
-		.attach(MainDB::init())
-		.manage(Tasks { tasks: RwLock::new(BTreeMap::new()) })
+		.attach(Template::fairing());
 
+	rocket_build = if use_db {
+		rocket_build.attach(MainDB::stage())
+	} else {
+		rocket_build
+	};
+
+	rocket_build
+		.manage(Tasks { tasks: RwLock::new(BTreeMap::new()) })
 }
