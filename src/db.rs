@@ -1,5 +1,5 @@
-use rocket::{fairing::{AdHoc, self}, Rocket, Build, error};
-use rocket_db_pools::{sqlx, Database};
+use rocket::{fairing::{AdHoc, self}, Rocket, Build, error, futures::{StreamExt, future::{join_all, try_join_all}}};
+use rocket_db_pools::Database;
 
 const SQL_CREATE_TABLE: &'static str = include_str!("../sql/schema.sql");
 
@@ -18,11 +18,18 @@ impl MainDB {
 
 	async fn create_table(rocket: Rocket<Build>) -> fairing::Result {
 		match MainDB::fetch(&rocket) {
-			Some(db) => match sqlx::query(SQL_CREATE_TABLE).execute(&**db).await {
-				Ok(_) => Ok(rocket),
-				Err(e) => {
-					error!("Failed to create table for database: {}", e);
-					Err(rocket)
+			Some(db) => {
+				match try_join_all(SQL_CREATE_TABLE.split(";").map(|stmt| {
+					sqlx::query(stmt).execute(&**db)
+				}).collect::<Vec<_>>()).await {
+					Ok(res) => {
+						res.into_iter().for_each(|res| println!("Query success: affected {} rows", res.rows_affected()));
+						Ok(rocket)
+					}
+					Err(e) => {
+						error!("Failed to run query: {}", e);
+						Err(rocket)
+					}
 				}
 			}
 			None => Err(rocket)
