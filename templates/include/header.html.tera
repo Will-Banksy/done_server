@@ -8,7 +8,6 @@
 {% else %}
 <header class="compact">
 	<span>done.</span>
-	{% set inline_nav = true %}
 	{% include "include/nav" %}
 </header>
 {% endif %}

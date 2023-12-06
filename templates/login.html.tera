@@ -14,7 +14,7 @@
 		<main>
 			<section>
 				<h2>Login</h2>
-				<form action="/login" method="post" id="login-form">
+				<form action="/login_user" method="post" id="login-form">
 					{{ macros::icon_input(input='<input type="text" name="username" placeholder="Enter username" id="login-username" class="input-hasicon">', icon="person") }}
 					{{ macros::icon_input(input='<input type="password" name="password" placeholder="Enter password" id="login-password" class="input-hasicon">', icon="passkey") }}
 					<input type="submit" value="Log in">

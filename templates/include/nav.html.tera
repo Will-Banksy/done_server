@@ -1,9 +1,10 @@
-{% if inline_nav %}
-<nav style="display: inline-block;">
-{% else %}
 <nav>
-{% endif %}
 	<a href="/">home</a>
 	<a href="/tasks">tasks</a>
+	{% if user_name %}
+	<p>welcome, <b>{{ user_name }}</b> </p>
+	<a href="/logout">logout</a>
+	{% else %}
 	<a href="/login">log in</a>
+	{% endif %}
 </nav>

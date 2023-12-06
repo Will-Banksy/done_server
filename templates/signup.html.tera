@@ -14,7 +14,7 @@
 		<main>
 			<section>
 				<h2>Signup</h2>
-				<form action="/signup" method="post" id="signup-form">
+				<form action="/create_user" method="post" id="signup-form">
 					{{ macros::icon_input(input='<input type="text" name="username" placeholder="Enter username" id="signup-username" class="input-hasicon">', icon="person") }}
 					{{ macros::icon_input(input='<input type="password" name="password" placeholder="Enter password" id="signup-password" class="input-hasicon">', icon="passkey") }}
 					{{ macros::icon_input(input='<input type="password" name="password-validate" placeholder="Re-enter password" id="signup-password-validate" class="input-hasicon">', icon="passkey") }}
