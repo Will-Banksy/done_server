@@ -1,9 +1,10 @@
 use std::ops::Deref;
 
 use rocket::{get, State, response::Redirect, form::Form, post, uri};
+use rocket_db_pools::Connection;
 use rocket_dyn_templates::{Template, context};
 
-use crate::{state::Tasks, forms::TaskForm};
+use crate::{state::Tasks, forms::TaskForm, db::MainDB};
 
 #[get("/")]
 pub fn index() -> Template {
@@ -13,6 +14,16 @@ pub fn index() -> Template {
 #[get("/login")]
 pub fn login() -> Template {
 	Template::render("login", context! {})
+}
+
+#[post("/login")]
+pub fn login_user(mut db: Connection<MainDB>) -> Redirect {
+	Redirect::to(uri!("/"))
+}
+
+#[get("/signup")]
+pub fn signup() -> Template {
+	Template::render("signup", context! {})
 }
 
 #[get("/tasks")]
@@ -33,9 +44,4 @@ pub fn remove_task(task_form: Form<TaskForm<'_>>, tasks: &State<Tasks>) -> Redir
 	eprintln!("/remove_task: Recieved task data: {:?}", task_form);
 	tasks.inner().tasks.write().unwrap().remove(&task_form.id.to_string());
 	Redirect::to(uri!("/tasks"))
-}
-
-#[get("/signup")]
-pub fn signup() -> Template {
-	Template::render("signup", context! {})
 }
