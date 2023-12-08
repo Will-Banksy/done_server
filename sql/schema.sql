@@ -5,11 +5,13 @@ create table if not exists main_db.auth(
 	user_name varchar(255) not null,
 	user_pass varchar(255) not null,
 
+	unique(user_name),
 	primary key(user_id)
 );
 
 create table if not exists main_db.tasks(
 	task_id int auto_increment,
+	user_task_id int not null,
 	user_id int not null,
 	task_text varchar(512),
 

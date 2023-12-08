@@ -22,6 +22,8 @@
 	--theme-col-fg1: #c0c0c0;
 	--theme-col-fg2: #7a7a7a;
 
+	--theme-col-err: #f06262;
+
 	--theme-met-h1: 6rem;
 	--theme-met-h2: 3rem;
 	--theme-met-h3: 2.5rem;
@@ -201,6 +203,12 @@ input[type=submit].material-symbols-outlined, button.material-symbols-outlined, 
 
 .crossed-out {
 	text-decoration: line-through;
+}
+
+.form-error-msg {
+	color: var(--theme-col-err);
+	width: 100%;
+	text-align: center;
 }
 
 

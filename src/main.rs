@@ -4,7 +4,7 @@ mod forms;
 mod db;
 mod security;
 
-use std::{collections::BTreeMap, sync::RwLock, fs, io};
+use std::{collections::BTreeMap, sync::RwLock, fs, io, fmt::Display};
 use rocket::{launch, routes, fs::{FileServer, Options}, response::{self, Responder}, Response, http::Status};
 
 use rocket_dyn_templates::Template;
@@ -36,15 +36,29 @@ pub enum Error {
 impl<'r, 'o: 'r> Responder<'r, 'o> for Error {
 	fn respond_to(self, _: &'r rocket::Request<'_>) -> response::Result<'o> {
 		let mut resp = Response::new();
-		let (status, msg) = match self {
-			Error::Sql(sqlx_e) => (Status::InternalServerError, sqlx_e.to_string()),
-			Error::UserExists(uname) => (Status::Conflict, format!("Error: User \"{}\" already exists", uname)),
-			Error::UserDoesNotExist(uid_or_uname) => (Status::Unauthorized, format!("User {} does not exist", uid_or_uname)),
-			Error::AuthenticationError(msg) => (Status::Unauthorized, format!("Authentication error: {}", msg)),
+		let status = match self {
+			Error::Sql(_) => Status::InternalServerError,
+			Error::UserExists(_) => Status::Conflict,
+			Error::UserDoesNotExist(_) => Status::Unauthorized,
+			Error::AuthenticationError(_) => Status::Unauthorized,
 		};
+		let msg = self.to_string();
 		resp.set_status(status);
 		resp.set_sized_body(msg.len(), io::Cursor::new(msg));
 		Ok(resp)
+	}
+}
+
+impl Display for Error {
+	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+		f.write_str(
+			&match self {
+				Error::Sql(sqlx_e) => format!("Database/SQL error: {}", sqlx_e.to_string()),
+				Error::UserExists(uname) => format!("Error: User \"{}\" already exists", uname),
+				Error::UserDoesNotExist(uid_or_uname) => format!("Error: User {} does not exist", uid_or_uname),
+				Error::AuthenticationError(msg) => format!("Authentication error: {}", msg),
+			}
+		)
 	}
 }
 

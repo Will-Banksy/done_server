@@ -16,10 +16,10 @@
 				<h2>About</h2>
 				<p>
 					<b>done.</b> is an online web application to help you manage your tasks. It can be self-hosted, but requires an existing DBMS
-					(one will not be set up automatically). <b>done.</b> uses MySQL syntax, and so the DBMS must be MySQL-compatible (e.g. MariaDB). To
+					(one will not be set up automatically). <b>done.</b> requires that the DBMS is MySQL-compatible (e.g. MariaDB). To
 					configure a DBMS for <b>done.</b>, create a file called ".env" in the project root directory if running with "cargo run" or in the same
-					directory as the executable if running the binary directly. In the .env file, write "url = "mysql://user:pass@host:port"" - replacing user,
-					pass, host and port with the appropriate values.
+					directory as the executable if running the binary directly. In the .env file, write "url = "mysql://user:pass@host:port"" (replacing user,
+					pass, host and port with the appropriate values).
 				</p>
 			</section>
 		</main>

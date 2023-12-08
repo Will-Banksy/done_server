@@ -22,7 +22,7 @@
 					<form action="/set_task" method="post" class="task-form" id="{{ id }}">
 						<input type="hidden" name="id" value="{{ id }}">
 						<input type="text" name="task" class="inline" value="{{ task }}" placeholder="E.g. do laundry, go shopping, etc..." onchange="task_on_change(this);"
-							onkeypress="this.onchange(this);" onpaste="this.onchange(this)" oninput="this.onchange(this)">
+						onkeypress="this.onchange(this);" onpaste="this.onchange(this)" oninput="this.onchange(this)">
 						<button type="submit">
 							<span class="material-symbols-outlined inline">
 								done
@@ -32,15 +32,23 @@
 				</div>
 				{% endmacro  %}
 
+				{% if tasks is defined %}
+
 				<template id="task_template">
 					{{ self::task_html(id="", task="") }}
 				</template>
 
 				<button style="display: block; margin-left: auto;" onclick="add_task()">Add Task</button>
 
-				{% for id, task in tasks %}
-					{{ self::task_html(id=id, task=task) }}
+				{% for task in tasks %}
+					{{ self::task_html(id="task - " ~ task["user_task_id"], task=task["text"]) }}
 				{% endfor %}
+
+				{% else %}
+
+				<p>Please log in to view tasks</p>
+
+				{% endif %}
 
 			</section>
 		</main>

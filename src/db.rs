@@ -6,7 +6,7 @@ use sqlx::Row;
 
 use crate::Error;
 
-use self::reprs::User;
+use self::reprs::{User, Task};
 
 const SQL_CREATE_TABLE: &'static str = include_str!("../sql/schema.sql");
 
@@ -55,6 +55,7 @@ impl MainDB {
 		Ok(User::from_row(res).ok_or(Error::UserDoesNotExist(user_name.to_string()))?)
 	}
 
+	/// Requires: user.name, user.pass
 	pub async fn create_user(conn: &mut Connection<MainDB>, user: User) -> Result<i32, Error> {
 		let existing_user = sqlx::query("select user_name from main_db.auth where user_name = ? limit 1").bind(user.name.clone()).fetch_optional(&mut ***conn).await.map_err(|e| Error::Sql(e))?;
 		if existing_user.is_some() {
@@ -65,5 +66,26 @@ impl MainDB {
 		let inserted = sqlx::query("select user_id, user_name from main_db.auth where user_name = ?").bind(user.name).fetch_one(&mut ***conn).await.map_err(|e| Error::Sql(e))?;
 
 		Ok(inserted.try_get("user_id").map_err(|e| Error::Sql(e))?)
+	}
+
+	/// Requires: task.user_id, task.user_task_id, task.text
+	pub async fn set_task(conn: &mut Connection<MainDB>, task: Task) -> Result<(), Error> {
+		let row = sqlx::query("select * from main_db.tasks where user_id = ? and user_task_id = ?").bind(task.user_id).bind(task.user_task_id).fetch_optional(&mut ***conn).await.map_err(|e| Error::Sql(e))?;
+		if row.is_some() {
+			sqlx::query("update main_db.tasks set task_text = ? where user_id = ? and user_task_id = ?").bind(task.text).bind(task.user_id).bind(task.user_task_id).execute(&mut ***conn).await.map_err(|e| Error::Sql(e))?;
+		} else {
+			sqlx::query("insert into main_db.tasks(user_task_id, user_id, task_text) values(?, ?, ?)").bind(task.user_task_id).bind(task.user_id).bind(task.text).execute(&mut ***conn).await.map_err(|e| Error::Sql(e))?;
+		}
+		Ok(())
+	}
+
+	/// Requires: task.user_id, task.user_task_id
+	pub async fn remove_task(conn: &mut Connection<MainDB>, task: Task) -> Result<(), Error> {
+		sqlx::query("delete from main_db.tasks where user_id = ? and user_task_id = ?").bind(task.user_id).bind(task.user_task_id).execute(&mut ***conn).await.map_err(|e| Error::Sql(e))?;
+		Ok(())
+	}
+
+	pub async fn get_user_tasks(conn: &mut Connection<MainDB>, user_id: i32) -> Result<Vec<Task>, Error> {
+		Ok(sqlx::query("select * from main_db.tasks where user_id = ?").bind(user_id).fetch_all(&mut ***conn).await.map_err(|e| Error::Sql(e))?.into_iter().map(|row| Task::from_row(row).unwrap()).collect())
 	}
 }

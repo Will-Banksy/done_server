@@ -11,6 +11,33 @@ for (let i = 0; i < task_forms.length; i++) {
 	})
 }
 
+let signup_form = document.querySelector("#signup-form");
+if(signup_form != null) {
+	signup_form.addEventListener("submit", (e) => {
+		let form_data = new FormData(signup_form);
+		let uname = form_data.get("username");
+		let pass1 = form_data.get("password");
+		let pass2 = form_data.get("password-validate");
+		let error_msg = signup_form.querySelector(".form-error-msg");
+		if(pass1 != pass2) {
+			if(error_msg != null) { // Should never be null
+				error_msg.innerHTML = "Error: Passwords to not match"
+			}
+			e.preventDefault();
+		} else if(username == null || username.length == 0) {
+			if(error_msg != null) { // Should never be null
+				error_msg.innerHTML = "Error: Username cannot be empty"
+			}
+			e.preventDefault();
+		} else if(pass1 == null || pass1.length == 0) {
+			if(error_msg != null) { // Should never be null
+				error_msg.innerHTML = "Error: Password cannot be empty"
+			}
+			e.preventDefault();
+		}
+	})
+}
+
 function task_on_change(input) {
 	let form = input.parentNode;
 	if(task_inputs.get(form.getAttribute("id")) != input.value) {
@@ -33,11 +60,16 @@ async function set_task(form) {
 		icon_elem.classList.add("spin");
 
 		fetch("/set_task", { method: "POST", body: form_data, redirect: "manual" })
-			.then((_) => {
-				icon_elem.innerHTML = "done";
-				icon_elem.classList.remove("spin");
-				task_inputs.set(form.getAttribute("id"), form_data.get("task"));
-				task_on_change(form.querySelector("input[type=text]"));
+			.then((response) => response.text())
+			.then((response_body) => {
+				if(response_body == "SUCCESS") {
+					icon_elem.innerHTML = "done";
+					icon_elem.classList.remove("spin");
+					task_inputs.set(form.getAttribute("id"), form_data.get("task"));
+					task_on_change(form.querySelector("input[type=text]"));
+				} else {
+					alert(response_body);
+				}
 			})
 	}
 }
@@ -88,9 +120,14 @@ async function done_task_on_change(input) {
 				let form_data = new FormData(form);
 
 				fetch("/remove_task", { method: "POST", body: form_data, redirect: "manual" })
-					.then(() => {
-						input.checked = false;
-						input.parentNode.parentNode.remove();
+					.then((response) => response.text())
+					.then((response_body) => {
+						if(response_body == "SUCCESS") {
+							input.checked = false;
+							input.parentNode.parentNode.remove();
+						} else {
+							alert(response_body);
+						}
 					});
 			}
 		}, 3000)

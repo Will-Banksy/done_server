@@ -5,6 +5,7 @@
 	<head>
 		{% include "include/meta" %}
 		<title>Signup | done.</title>
+		<script src="/assets/form-logic.js" defer></script>
 	</head>
 
 	<body>
@@ -18,6 +19,11 @@
 					{{ macros::icon_input(input='<input type="text" name="username" placeholder="Enter username" id="signup-username" class="input-hasicon">', icon="person") }}
 					{{ macros::icon_input(input='<input type="password" name="password" placeholder="Enter password" id="signup-password" class="input-hasicon">', icon="passkey") }}
 					{{ macros::icon_input(input='<input type="password" name="password-validate" placeholder="Re-enter password" id="signup-password-validate" class="input-hasicon">', icon="passkey") }}
+					<p class="form-error-msg">
+						{% if error_msg %}
+						{{ error_msg }}
+						{% endif %}
+					</p>
 					<input type="submit" value="Sign up">
 				</form>
 				<p class="signup-prompt">
