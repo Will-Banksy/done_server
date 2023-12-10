@@ -8,6 +8,12 @@
 	</head>
 
 	<body>
+		{% if temp_msg %}
+		<div class="temp-msg">
+			<p>{{ temp_msg }}</p>
+		</div>
+		{% endif %}
+
 		{% set header_expanded = true %}
 		{% include "include/header" %}
 

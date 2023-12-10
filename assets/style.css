@@ -23,6 +23,7 @@
 	--theme-col-fg2: #7a7a7a;
 
 	--theme-col-err: #f06262;
+	--theme-col-ok: #83f062;
 
 	--theme-met-h1: 6rem;
 	--theme-met-h2: 3rem;
@@ -209,6 +210,17 @@ input[type=submit].material-symbols-outlined, button.material-symbols-outlined, 
 	color: var(--theme-col-err);
 	width: 100%;
 	text-align: center;
+}
+
+.temp-msg {
+	background-color: var(--theme-col-bg1);
+	border-radius: var(--theme-met-rounding);
+	padding: 1rem 2rem;
+	text-align: center;
+}
+
+.temp-msg > * {
+	border-left: 2px solid var(--theme-col-ok);
 }
 
 

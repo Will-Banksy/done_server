@@ -12,14 +12,27 @@ pub async fn index(flash: Option<FlashMessage<'_>>, cookies: &CookieJar<'_>, mut
 	if let Some(sessid) = sessid {
 		if let Some(user_id) = sman.query_session(sessid.value()) {
 			if let Ok(user) = MainDB::get_user(&mut db, user_id).await {
-				return Template::render("index", context! {
-					user_name: user.name
-				})
+				if let Some(msg) = flash {
+					return Template::render("index", context! {
+						user_name: user.name,
+						temp_msg: msg.message()
+					})
+				} else {
+					return Template::render("index", context! {
+						user_name: user.name
+					})
+				}
 			}
 		}
 	}
 
-	Template::render("index", context! {})
+	if let Some(msg) = flash {
+		Template::render("index", context! {
+			temp_msg: msg.message()
+		})
+	} else {
+		Template::render("index", context! {})
+	}
 }
 
 #[get("/login")]
@@ -81,9 +94,6 @@ pub async fn create_user(signup_form: Form<SignupForm<'_>>, cookies: &CookieJar<
 	} else if signup_form.password.is_empty() {
 		return Flash::error(Redirect::to(uri!("/signup")), "Password cannot be empty");
 	}
-
-	eprintln!("signup_form.username: {} (length: {} bytes)", signup_form.username, signup_form.username.len());
-	eprintln!("signup_form.password: {} (length: {} bytes)", signup_form.password, signup_form.password.len());
 
 	let user = User {
 		id: 0, // id is ignored when inserting into db
