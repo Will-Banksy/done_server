@@ -1,3 +1,5 @@
+pub mod api;
+
 use rocket::{get, State, response::{Redirect, Flash}, form::Form, post, uri, http::{CookieJar, Status}, request::FlashMessage};
 use rocket_db_pools::Connection;
 use rocket_dyn_templates::{Template, context};

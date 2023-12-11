@@ -541,6 +541,7 @@ name = "done_server"
 version = "0.1.0"
 dependencies = [
  "argon2",
+ "base64",
  "rocket",
  "rocket_db_pools",
  "rocket_dyn_templates",
@@ -1866,6 +1867,7 @@ dependencies = [
  "rocket_codegen",
  "rocket_http",
  "serde",
+ "serde_json",
  "state",
  "tempfile",
  "time",
