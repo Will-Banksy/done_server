@@ -41,7 +41,7 @@
 				<button style="display: block; margin-left: auto;" onclick="add_task()">Add Task</button>
 
 				{% for task in tasks %}
-					{{ self::task_html(id="task - " ~ task["user_task_id"], task=task["text"]) }}
+					{{ self::task_html(id="task-" ~ task["user_task_id"], task=task["text"]) }}
 				{% endfor %}
 
 				{% else %}

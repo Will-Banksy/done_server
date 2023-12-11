@@ -4,7 +4,7 @@ mod forms;
 mod db;
 mod security;
 
-use std::{collections::BTreeMap, sync::RwLock, fs, io, fmt::Display};
+use std::{fs, io, fmt::Display};
 use rocket::{launch, routes, fs::{FileServer, Options}, response::{self, Responder}, Response, http::Status};
 
 use rocket_dyn_templates::Template;
@@ -12,7 +12,7 @@ use serde::Deserialize;
 
 use sqlx::Error as SqlxError;
 
-use crate::{state::{Tasks, SessionManager}, routes::*, db::MainDB};
+use crate::{state::SessionManager, routes::*, db::MainDB};
 
 #[derive(Debug, Deserialize)]
 struct Env {
@@ -64,52 +64,26 @@ impl Display for Error {
 
 #[launch]
 fn rocket() -> _ {
-	// rocket::build()
-	// 	.mount("/", routes![index, tasks, set_task, remove_task, signup, login])
-	// 	.mount("/assets/", FileServer::new("assets", Options::None))
-	// 	.attach(Template::fairing())
-	// 	.attach(MainDB::init())
-	// 	.manage(Tasks { tasks: RwLock::new(BTreeMap::new()) })
-
 	let env = Env::read_env();
 
 	println!("{:?}", env);
 
-	let mut use_db = false;
+	let db_url = env.expect(".env must be supplied, containing a url to the database in the form 'url = \"mysql://user:pass@host:port\"'")
+		.url.expect(".env was in the incorrect format: It should contain a database url in the form");
 
-	let mut rocket_build = if let Some(env) = env {
-		if let Some(url) = env.url {
-			let figment = rocket::Config::figment()
-				.merge(("databases.main_db", rocket_db_pools::Config {
-					url,
-					min_connections: None,
-					max_connections: 128,
-					connect_timeout: 5,
-					idle_timeout: Some(180)
-				}));
+	let figment = rocket::Config::figment()
+		.merge(("databases.main_db", rocket_db_pools::Config {
+			url: db_url,
+			min_connections: None,
+			max_connections: 128,
+			connect_timeout: 5,
+			idle_timeout: Some(180)
+		}));
 
-			use_db = true;
-
-			rocket::custom(figment)
-		} else {
-			rocket::build()
-		}
-	} else {
-		rocket::build()
-	};
-
-	rocket_build = rocket_build
+	rocket::custom(figment)
 		.mount("/", routes![index, tasks, set_task, remove_task, signup, login, create_user, login_user, logout])
 		.mount("/assets/", FileServer::new("assets", Options::None))
-		.attach(Template::fairing());
-
-	rocket_build = if use_db {
-		rocket_build.attach(MainDB::stage())
-	} else {
-		rocket_build
-	};
-
-	rocket_build
+		.attach(Template::fairing())
+		.attach(MainDB::stage())
 		.manage(SessionManager::new())
-		.manage(Tasks { tasks: RwLock::new(BTreeMap::new()) })
 }

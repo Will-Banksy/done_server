@@ -1,10 +1,6 @@
-use std::{collections::{BTreeMap, HashMap}, sync::RwLock};
+use std::{collections::HashMap, sync::RwLock};
 
 use crate::security;
-
-pub struct Tasks {
-	pub tasks: RwLock<BTreeMap<String, String>>
-}
 
 pub struct SessionManager {
 	/// Map of session cookie values to user ids
