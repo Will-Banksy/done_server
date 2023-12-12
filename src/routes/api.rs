@@ -1,10 +1,8 @@
-use std::collections::BTreeMap;
-
-use base64::{Engine, engine::general_purpose::STANDARD_NO_PAD as base64_eng};
+use base64::{Engine, engine::general_purpose::STANDARD as base64_eng};
 use rocket::{post, serde::{json::Json, Serialize, Deserialize}, request::{FromRequest, Outcome}, Request, http::Status};
 use rocket_db_pools::Connection;
 
-use crate::{db::{MainDB, reprs::User}, security, Error};
+use crate::{db::{MainDB, reprs::{User, Task}}, security, Error};
 
 #[derive(Serialize)]
 #[serde(crate = "rocket::serde")]
@@ -13,23 +11,17 @@ pub struct GetTasksResponseJson {
 	tasks: Vec<TaskJson>
 }
 
-#[derive(Serialize)]
-#[serde(crate = "rocket::serde")]
-pub struct SetTaskRequestJson {
-	tasks: BTreeMap<i32, String>
-}
-
-#[derive(Serialize)]
-#[serde(crate = "rocket::serde")]
-pub struct SetTaskResponseJson {
-	success: bool
-}
-
 #[derive(Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
 pub struct TaskJson {
 	user_task_id: i32,
 	task: String
+}
+
+#[derive(Serialize)]
+#[serde(crate = "rocket::serde")]
+pub struct SuccessJson {
+	success: bool
 }
 
 pub struct AuthHeader {
@@ -49,6 +41,7 @@ impl<'r> FromRequest<'r> for AuthHeader {
 
 	async fn from_request(req: &'r Request<'_>) -> Outcome<Self, Self::Error> {
 		if let Some(hdr) = req.headers().get_one("Authorization") {
+			let hdr = &hdr[6..];
 			if let Ok(decoded) = base64_eng.decode(hdr) {
 				if let Ok(auth_str) = String::from_utf8(decoded) {
 					let mut auth_str_iter = auth_str.split(':').map(|sref| sref.to_string());
@@ -81,7 +74,7 @@ async fn get_user_with_verify(db: &mut Connection<MainDB>, auth: AuthHeader) -> 
 	}
 }
 
-#[post("/api/tasks/get")]
+#[post("/tasks/get")]
 pub async fn get_tasks(mut db: Connection<MainDB>, auth: AuthHeader) -> Json<GetTasksResponseJson> {
 	if let Ok(user) = get_user_with_verify(&mut db, auth).await {
 		if let Ok(tasks) = MainDB::get_user_tasks(&mut db, user.id).await {
@@ -95,12 +88,32 @@ pub async fn get_tasks(mut db: Connection<MainDB>, auth: AuthHeader) -> Json<Get
 	Json(GetTasksResponseJson { success: false, tasks: Vec::new() })
 }
 
-#[post("/api/tasks/set", format = "json", data = "<tasks>")]
-pub async fn set_tasks(tasks: Json<Vec<TaskJson>>, mut db: Connection<MainDB>, auth: AuthHeader) {
-	todo!()
+#[post("/tasks/set", format = "json", data = "<tasks>")]
+pub async fn set_tasks(tasks: Json<Vec<TaskJson>>, mut db: Connection<MainDB>, auth: AuthHeader) -> Json<SuccessJson> {
+	if let Ok(user) = get_user_with_verify(&mut db, auth).await {
+		for task in tasks.0 {
+			if let Err(_) = MainDB::set_task(&mut db, Task { id: 0, user_id: user.id, user_task_id: task.user_task_id, text: task.task }).await {
+				return Json(SuccessJson { success: false })
+			}
+		}
+
+		return Json(SuccessJson { success: true })
+	}
+
+	return Json(SuccessJson { success: false })
 }
 
-#[post("/api/tasks/delete", format = "json", data = "<user_task_ids>")]
-pub async fn delete_tasks(user_task_ids: Json<Vec<i32>>, mut db: Connection<MainDB>, auth: AuthHeader) {
-	todo!()
+#[post("/tasks/delete", format = "json", data = "<user_task_ids>")]
+pub async fn delete_tasks(user_task_ids: Json<Vec<i32>>, mut db: Connection<MainDB>, auth: AuthHeader) -> Json<SuccessJson> {
+	if let Ok(user) = get_user_with_verify(&mut db, auth).await {
+		for user_task_id in user_task_ids.0 {
+			if let Err(_) = MainDB::delete_task(&mut db, Task { id: 0, user_id: user.id, user_task_id, text: "".to_string() }).await {
+				return Json(SuccessJson { success: false })
+			}
+		}
+
+		return Json(SuccessJson { success: true })
+	}
+
+	return Json(SuccessJson { success: false })
 }

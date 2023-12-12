@@ -82,6 +82,7 @@ fn rocket() -> _ {
 
 	rocket::custom(figment)
 		.mount("/", routes![index, tasks, set_task, remove_task, signup, login, create_user, login_user, logout])
+		.mount("/api/", routes![api::get_tasks, api::set_tasks, api::delete_tasks])
 		.mount("/assets/", FileServer::new("assets", Options::None))
 		.attach(Template::fairing())
 		.attach(MainDB::stage())

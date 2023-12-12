@@ -194,7 +194,7 @@ pub async fn remove_task(task_form: Form<TaskForm<'_>>, cookies: &CookieJar<'_>,
 				}
 			};
 
-			return match MainDB::remove_task(&mut db, task).await {
+			return match MainDB::delete_task(&mut db, task).await {
 				Ok(()) => (Status::Ok, "SUCCESS".to_string()),
 				Err(e) => (Status::InternalServerError, e.to_string()),
 			};
