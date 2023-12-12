@@ -1,10 +1,10 @@
 use std::collections::BTreeMap;
 
 use base64::{Engine, engine::general_purpose::STANDARD_NO_PAD as base64_eng};
-use rocket::{post, serde::{json::Json, Serialize}, request::{FromRequest, Outcome}, Request, http::Status};
+use rocket::{post, serde::{json::Json, Serialize, Deserialize}, request::{FromRequest, Outcome}, Request, http::Status};
 use rocket_db_pools::Connection;
 
-use crate::{db::MainDB, security};
+use crate::{db::{MainDB, reprs::User}, security, Error};
 
 #[derive(Serialize)]
 #[serde(crate = "rocket::serde")]
@@ -25,7 +25,7 @@ pub struct SetTaskResponseJson {
 	success: bool
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
 pub struct TaskJson {
 	user_task_id: i32,
@@ -68,21 +68,39 @@ impl<'r> FromRequest<'r> for AuthHeader {
 	}
 }
 
-#[post("/api/get_tasks")]
-pub async fn get_tasks(mut db: Connection<MainDB>, auth: AuthHeader) -> Json<GetTasksResponseJson> {
-	match MainDB::find_user(&mut db, &auth.username).await {
+async fn get_user_with_verify(db: &mut Connection<MainDB>, auth: AuthHeader) -> Result<User, Error> {
+	match MainDB::find_user(&mut *db, &auth.username).await {
 		Ok(user) => {
 			if security::password_verify(&auth.password, &user.pass) {
-				if let Ok(tasks) = MainDB::get_user_tasks(&mut db, user.id).await {
-					return Json(GetTasksResponseJson {
-						success: true,
-						tasks: tasks.into_iter().map(|dbt| TaskJson { user_task_id: dbt.user_task_id, task: dbt.text}).collect()
-					})
-				}
+				Ok(user)
+			} else {
+				Err(Error::AuthenticationError("Password did not match".to_string()))
 			}
-
-			Json(GetTasksResponseJson { success: false, tasks: Vec::new() })
-		},
-		Err(_) => Json(GetTasksResponseJson { success: false, tasks: Vec::new() })
+		}
+		Err(e) => Err(e)
 	}
+}
+
+#[post("/api/tasks/get")]
+pub async fn get_tasks(mut db: Connection<MainDB>, auth: AuthHeader) -> Json<GetTasksResponseJson> {
+	if let Ok(user) = get_user_with_verify(&mut db, auth).await {
+		if let Ok(tasks) = MainDB::get_user_tasks(&mut db, user.id).await {
+			return Json(GetTasksResponseJson {
+				success: true,
+				tasks: tasks.into_iter().map(|dbt| TaskJson { user_task_id: dbt.user_task_id, task: dbt.text}).collect()
+			});
+		}
+	}
+
+	Json(GetTasksResponseJson { success: false, tasks: Vec::new() })
+}
+
+#[post("/api/tasks/set", format = "json", data = "<tasks>")]
+pub async fn set_tasks(tasks: Json<Vec<TaskJson>>, mut db: Connection<MainDB>, auth: AuthHeader) {
+	todo!()
+}
+
+#[post("/api/tasks/delete", format = "json", data = "<user_task_ids>")]
+pub async fn delete_tasks(user_task_ids: Json<Vec<i32>>, mut db: Connection<MainDB>, auth: AuthHeader) {
+	todo!()
 }

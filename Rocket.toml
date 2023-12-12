@@ -1,2 +1,5 @@
 [default]
 address = "0.0.0.0"
+
+[release]
+secret_key = "EZ6esOKyu5wySUjU6NQgSp/+Aku6y4K68uGy3tnQ84I="
