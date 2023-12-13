@@ -3,6 +3,8 @@
 # Sets up a minimal Amazon RDS instance for dev work (only accessible from the host's public IP address). Requires the aws cli, and credentials stored in ~/.aws/credentials
 # To connect, go into the AWS management console, navigate to the RDS instance, and you should find the connection info there
 
+# WARNING: Minimal EC2 instances with 1 GB RAM won't be able to compile the project, and will fail at the linking stage
+
 db_instance_name="sboxdb";
 master_user="admin";
 master_pass="roottoor";

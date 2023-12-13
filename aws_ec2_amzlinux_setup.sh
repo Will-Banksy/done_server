@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# To be run on the ec2 instance, just copy-paste it into a bash script or line by line
+# To be run on the ec2 instance, just copy-paste it into a bash script or line by line into the terminal
 
 sudo dnf install git gcc;
 
